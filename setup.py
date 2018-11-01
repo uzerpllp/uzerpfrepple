@@ -29,7 +29,7 @@ setuptools.setup(
     description="Frepple ERP connector for uzERP",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/uzerp/uzerpfrepple",
+    url="https://github.com/uzerpllp/uzerpfrepple",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
