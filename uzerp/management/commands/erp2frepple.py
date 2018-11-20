@@ -247,7 +247,7 @@ class Command(BaseCommand):
       ''')
     with open(outfilename, 'w', newline='') as outfile:
       outcsv = csv.writer(outfile, quoting=csv.QUOTE_MINIMAL)
-      outcsv.writerow(['name', 'description', 'category','subcategory', 'cost', 'attribute1'])
+      outcsv.writerow(['name', 'description', 'category','subcategory', 'cost'])
       outcsv.writerows(self.cursor.fetchall())
 
 
@@ -263,7 +263,7 @@ class Command(BaseCommand):
       ''')
     with open(outfilename, 'w', newline='') as outfile:
       outcsv = csv.writer(outfile, quoting=csv.QUOTE_MINIMAL)
-      outcsv.writerow(['name', 'category', 'attribute1'])
+      outcsv.writerow(['name', 'category'])
       outcsv.writerows(self.cursor.fetchall())
 
 
