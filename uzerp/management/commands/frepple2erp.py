@@ -167,7 +167,7 @@ class Command(BaseCommand):
     release_fence = datetime.datetime.now().date() + datetime.timedelta(days=uz_settings['po_release_fence'])
 
     self.cursor_frepple.execute('''
-      select id, item_id, supplier_id, startdate, enddate, quantity, item.subcategory, description
+      select reference, item_id, supplier_id, startdate, enddate, quantity, item.subcategory, description
       from operationplan
       inner join item on item_id = item.name
       where type = 'PO' and status = 'proposed' and startdate <= %s
@@ -199,7 +199,7 @@ class Command(BaseCommand):
     Export manufacturing orders to uzERP.
     '''
     print("Start exporting manufacturing orders")
-    
+
     uz_settings = settings.UZERP_SETTINGS.get('EXPORT', None)
 
     if uz_settings is None:
@@ -209,7 +209,7 @@ class Command(BaseCommand):
     release_fence = datetime.datetime.now().date() + datetime.timedelta(days=uz_settings['wo_release_fence'])
 
     self.cursor_frepple.execute('''
-      select id, quantity, enddate, item_id, startdate
+      select reference, quantity, enddate, item_id, startdate
       from operationplan
       where type = 'MO' and item_id is not NULL and status = 'proposed' and startdate <= %s
       order by startdate

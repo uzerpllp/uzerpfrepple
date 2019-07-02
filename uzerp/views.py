@@ -78,7 +78,7 @@ def Upload(request):
             cursor_erp.execute(copy_structure, structure_data)
 
             # Update the operationplan entry to approved status
-            fr_object = OperationPlan.objects.get(pk=order['id'])
+            fr_object = OperationPlan.objects.get(pk=order['reference'])
             print(fr_object.status)
             fr_object.status = 'approved'
             fr_object.save()
@@ -91,7 +91,7 @@ def Upload(request):
             cursor_erp.execute(create_po, po_data)
 
             # Update the operationplan entry to approved status
-            fr_object = OperationPlan.objects.get(pk=order['id'])
+            fr_object = OperationPlan.objects.get(pk=order['reference'])
             print(fr_object.status)
             fr_object.status = 'approved'
             fr_object.save()
