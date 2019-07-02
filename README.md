@@ -4,9 +4,10 @@ FrePPLe is an easy-to-use and easy-to-implement open source **advanced planning 
 
 FrePPLe implements planning algoritms based on best practices such as **theory of constraints** (ie *plan around the bottleneck*), **pull-based planning** (ie *start production as late as possible and directly triggered by demand*) and **lean manufacturing** (ie *avoid intermediate delays and inventory*).
 
-The FrePPLe connector for uzERP allows uzERP users to import sales orders, work orders, stock position, structures, operations, etc. into FrePPLe and generate a proposed purchase and work orders. The connector also provides integration for the export of proposed orders back to uzERP for execution.
+The FrePPLe connector for uzERP allows uzERP users to import sales orders, work orders, stock position, structures, operations, etc. into FrePPLe and generate proposed purchase and work orders. The connector also provides integration for the export of proposed orders back to uzERP for execution.
 
 More on FrePPLe: https://frepple.com
+
 More on uzERP: https://www.uzerp.com
 
 ## Settings
