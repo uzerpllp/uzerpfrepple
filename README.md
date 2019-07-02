@@ -27,12 +27,15 @@ UZERP_DB = {
 # uzERP connector settings
 UZERP_SETTINGS = {
 	'EXPORT': {
-		'wo_documentation': ('26', '9'),    # Database id's of the uzERP work order
-											# documentation injector classes
-		'wo_release_fence': 2,				# Planned purchase orders due to start after this
-											# number of days from today will not be exported
-		'po_release_fence': 2				# Planned purchase orders due to start after this
-											# number of days from today will not be exported
+		'wo_documentation': ('26', '9'),
+			# Database id's of the uzERP work order
+			# documentation injector classes
+		'wo_release_fence': 2,
+			# Planned purchase orders due to start after this
+			# number of days from today will not be exported
+		'po_release_fence': 2
+			# Planned purchase orders due to start after this
+			# number of days from today will not be exported
 	}
 }
 
