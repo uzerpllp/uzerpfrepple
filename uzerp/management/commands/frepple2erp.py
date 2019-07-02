@@ -16,6 +16,7 @@
 #
 
 import datetime
+from phpserialize import dumps
 
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
@@ -234,7 +235,7 @@ class Command(BaseCommand):
         create_wo = "INSERT INTO public.mf_workorders(\
           wo_number, order_qty, required_by, status, stitem_id, usercompanyid, documentation, start_date) \
           VALUES (%s, %s, %s, 'N',	(select id from st_items where item_code = %s),	1, %s, %s) RETURNING id;"
-        wo_data = (wo_number, float(morder[1]), morder[2], morder[3], uz_settings['wo_documentation_string'], morder[4])
+        wo_data = (wo_number, float(morder[1]), morder[2], morder[3], dumps(uz_settings['wo_documentation']).decode("utf-8"), morder[4])
         cursor_erp.execute(create_wo, wo_data)
         wo_id = cursor_erp.fetchone()
 

@@ -15,7 +15,7 @@ UZERP_DB = {
 # uzERP connector settings
 UZERP_SETTINGS = {
 	'EXPORT': {
-		'wo_documentation_string': 'a:2:{i:0;s:2:"26";i:1;s:1:"9";}',
+		'wo_documentation': ('26', '9'),
 		'wo_release_fence': 2,
 		'po_release_fence': 2
 	}

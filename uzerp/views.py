@@ -22,6 +22,7 @@ import jwt
 import time
 from urllib.request import urlopen, HTTPError, Request
 from xml.sax.saxutils import quoteattr
+from phpserialize import dumps
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -47,6 +48,9 @@ def Upload(request):
   Only selected operationplan entries with type 'routing'
   will be exported as Work Orders
   """
+
+  uz_settings = settings.UZERP_SETTINGS.get('EXPORT', None)
+
   try:
     data = json.loads(request.body.decode('utf-8'))
     print(data)
@@ -66,7 +70,7 @@ def Upload(request):
             create_wo = "INSERT INTO public.mf_workorders(\
               wo_number, order_qty, required_by, status, stitem_id, usercompanyid, documentation, start_date) \
               VALUES (%s, %s, %s, 'N',	(select id from st_items where item_code = %s),	1, %s, %s) RETURNING id;"
-            wo_data = (wo_number, float(order['quantity']), order['enddate'], order['operation__item__name'], 'a:2:{i:0;s:2:"26";i:1;s:1:"9";}', order['startdate'])
+            wo_data = (wo_number, float(order['quantity']), order['enddate'], order['operation__item__name'], dumps(uz_settings['wo_documentation']).decode("utf-8"), order['startdate'])
             cursor_erp.execute(create_wo, wo_data)
             wo_id = cursor_erp.fetchone()
 
