@@ -31,6 +31,11 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/uzerpllp/uzerpfrepple",
     packages=setuptools.find_packages(),
+    install_requires=[
+        'bcrypt',
+        'passlib',
+        'phpserialize'
+    ],
     classifiers=[
         "Programming Language :: Python :: 3",
         "Intended Audience :: Manufacturing",
