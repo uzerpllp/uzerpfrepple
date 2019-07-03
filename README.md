@@ -4,16 +4,40 @@ FrePPLe is an easy-to-use and easy-to-implement open source **advanced planning 
 
 FrePPLe implements planning algoritms based on best practices such as **theory of constraints** (ie *plan around the bottleneck*), **pull-based planning** (ie *start production as late as possible and directly triggered by demand*) and **lean manufacturing** (ie *avoid intermediate delays and inventory*).
 
-The FrePPLe connector for uzERP allows uzERP users to import sales orders, work orders, stock position, structures, operations, etc. into FrePPLe and generate proposed purchase and work orders. The connector also provides integration for the export of proposed orders back to uzERP for execution.
+The FrePPLe connector for uzERP allows uzERP users to import sales orders, work orders, stock position, structures, operations, etc. into FrePPLe Community Edition and generate proposed purchase and work orders. The connector also provides integration for the export of proposed orders back to uzERP for execution.
 
 More on FrePPLe: https://frepple.com
 
 More on uzERP: https://www.uzerp.com
 
+**Note: this connector has not been tested on windows**
+
+## Installation
+
+If you run FrePPLe using a python virtualenv, as we prefer to do, you can use `pip` to install the connector. If you have installed FrePPLe from the binary packages (e.g. on Ubuntu) then you can follow the `setup.py` method.
+
+**Install using pip:**
+
+```
+$ pip install git+https://github.com/uzerpllp/uzerpfrepple.git
+```
+
+**Install using `setup.py`:**
+
+Clone or download from [github](https://github.com/uzerpllp/uzerpfrepple), then run `setup.py`
+
+```
+$ python uzerpfrepple/setup.py install
+```
+
+*If you installed FrePPLe from binary packages, you will need to prefix the above command with `sudo` to install it system-wide*
+
 ## Settings
 
+Once the connector is installed it is configured by adding additional settings to FrePPLe's `djangosetting.py` file, located at `/etc/frepple/djangosettings.py` for binary package installations.
+
 ```python
-# djangosettings.py
+# FrePPLe djangosettings.py
 
 # uzERP database connection settings
 UZERP_DB = {
