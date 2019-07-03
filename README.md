@@ -1,18 +1,27 @@
 # FrePPLe ERP connector for uzERP
 
-FrePPLe is an easy-to-use and easy-to-implement open source **advanced planning and scheduling** tool for manufacturing companies.
+## What is FrePPLe?
 
-FrePPLe implements planning algoritms based on best practices such as **theory of constraints** (ie *plan around the bottleneck*), **pull-based planning** (ie *start production as late as possible and directly triggered by demand*) and **lean manufacturing** (ie *avoid intermediate delays and inventory*).
+From their README:
 
-The FrePPLe connector for uzERP allows uzERP users to import sales orders, work orders, stock position, structures, operations, etc. into FrePPLe Community Edition and generate proposed purchase and work orders. The connector also provides integration for the export of proposed orders back to uzERP for execution.
+> FrePPLe is an easy-to-use and easy-to-implement open source **advanced planning and scheduling** tool for manufacturing companies.
+> 
+> FrePPLe implements planning algoritms based on best practices such as **theory of constraints** (ie *plan around the bottleneck*),
+> **pull-based planning** (ie *start production as late as possible and directly triggered by demand*) and **lean manufacturing** (ie *avoid 
+> intermediate delays and inventory*).
 
 More on FrePPLe: https://frepple.com
 
+## What is uzERP?
+
+uzERP is an opensource ERP system focused on UK SME/Owner managed businesses. It delivers big company functionality on a small company budget, including accounting, stock, manufacturing and more.
+
+The FrePPLe connector for uzERP allows uzERP users to import sales orders, work orders, stock position, structures, operations, etc. into 
+FrePPLe Community Edition and generate proposed purchase and work orders. The connector provides complete two way integration including the export of proposed orders back to uzERP for execution.
+
 More on uzERP: https://www.uzerp.com
 
-**Note: this connector has not been tested on windows**
-
-## Installation
+## Connector Installation
 
 If you run FrePPLe using a python virtualenv, as we prefer to do, you can use `pip` to install the connector. If you have installed FrePPLe from the binary packages (e.g. on Ubuntu) then you can follow the `setup.py` method.
 
@@ -77,3 +86,5 @@ INSTALLED_APPS = (
 # and the user must have also been creted in the frepple application.
 AUTHENTICATION_BACKENDS = ['uzerp.uzerpauth.uzerpAuthBackend']
 ```
+
+**Note: this connector has not been tested on windows**
