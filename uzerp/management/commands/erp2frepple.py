@@ -216,7 +216,7 @@ class Command(BaseCommand):
       ''')
     with open(outfilename, 'w', newline='') as outfile:
       outcsv = csv.writer(outfile, quoting=csv.QUOTE_MINIMAL)
-      outcsv.writerow(['name', 'description', 'lastmodified'])
+      outcsv.writerow(['name', 'description', 'available', 'lastmodified'])
       outcsv.writerows(self.cursor.fetchall())
 
 
