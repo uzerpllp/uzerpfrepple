@@ -114,7 +114,7 @@ $ frepplectl.py erptofrepple
 
 ### Import Data from uzERP
 
-Data from uzERP is imported via a number of PostgreSQL views under the *frepple* schema in the uzERP database. These views produce output to match FrePPLe's requirements for planning data. The connector retrieves the data from these views, creating a set of CSV files, then runs FrePPLe's *importfromfolder* command to import them.
+Data from uzERP is imported via a number of PostgreSQL views under the *frepple* schema in the uzERP database. The connector retrieves the data from these views, creating a set of CSV files, then runs FrePPLe's *importfromfolder* command to import them.
 
 *See below for more detail on the mapping of data from uzERP to FrePPLe*
 
