@@ -120,9 +120,13 @@ Data from uzERP is imported via a number of PostgreSQL views under the *frepple*
 
 ### Export Data to uzERP
 
-For Work Orders, the connector selects the operation plan for *routing* type operations in FrePPLe and creates a matching work order in uzERP, at status NEW, for each requirement. Each work order will have the documents defined in the *djangosettings.py* configuration.
+As well as using the execute task to export all proposed orders to uzERP, individual orders can be selected and exported from their list in Frepple. Look for the 'Select action' button in, say, Manufacturing Orders and select 'Export to uzERP'.
+
+For Manufacturing Orders, the connector selects the operation plan for *routing* type operations in FrePPLe and creates a matching work order in uzERP, at status NEW, for each requirement. Each work order will have the documents defined in the *djangosettings.py* configuration.
 
 Purchase orders from the operation plan are created in uzERP as potential, individual order lines and are viewed in the *Review Planned* screen in uzERP. From there they can be grouped as required and turned into actual purchase orders.
+
+For both Manufacturing and Purchase Orders, orders are only exported if they have a *proposed* status and their start date falls within the time-fence defined in the connector configuration. Order status in FrePPLe is changed to *approved* after exporting.
 
 ### uzERP to Fepple Data Mapping
 
