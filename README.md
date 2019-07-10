@@ -49,7 +49,7 @@ The frepple schema is included in the *schema* folder with the connector softwar
 $ sudo -u postgres psql < /<path-to-connector>/schema/frepple.sql <uzerp-db-name>
 ```
 
-*Note: you will need to replace <path-to-connector> with the location where you downloaded the connector to. <uzerp-db-name> is the name of your uzERP database*
+*Note: you will need to replace `<path-to-connector>` with the location where you downloaded the connector to. `<uzerp-db-name>` is the name of your uzERP database*
 
 ## Settings
 
