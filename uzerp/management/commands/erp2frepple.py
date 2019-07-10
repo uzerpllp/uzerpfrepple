@@ -19,6 +19,7 @@ import csv
 from datetime import datetime
 import os
 
+from django.core import management
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from django.db import DEFAULT_DB_ALIAS
@@ -34,7 +35,7 @@ from ...utils import getERPconnection
 
 class Command(BaseCommand):
   help = '''
-  Extract a set of flat files from an ERP system.
+  Extract a set of CSV files from uzERP.
   '''
 
   ext = 'csv'
@@ -77,7 +78,7 @@ class Command(BaseCommand):
             <td style="vertical-align:top; padding: 15px">
                <button  class="btn btn-primary"  type="submit" value="{% trans "launch"|capfirst %}">{% trans "launch"|capfirst %}</button>
             </td>
-            <td  style="padding: 0px 15px;">{% trans "Import erp data into frePPLe." %}
+            <td  style="padding: 0px 15px;">{% trans "Import uzERP data into frePPLe." %}
             </td>
           </tr>
         </table>
@@ -95,7 +96,7 @@ class Command(BaseCommand):
     if self.database not in settings.DATABASES.keys():
       raise CommandError("No database settings known for '%s'" % self.database)
 
-    # FrePPle user running this task
+    # frePPLe user running this task
     if options['user']:
       try:
         self.user = User.objects.all().using(self.database).get(username=options['user'])
@@ -104,7 +105,7 @@ class Command(BaseCommand):
     else:
       self.user = None
 
-    # FrePPLe task identifier
+    # frePPLe task identifier
     if options['task']:
       try:
         self.task = Task.objects.all().using(self.database).get(pk=options['task'])
@@ -193,6 +194,9 @@ class Command(BaseCommand):
         self.extractManufacturingOrders()
         self.task.status = '91%'
         self.task.save(using=self.database)
+
+        # Import the CSV files into frePPLe
+        management.call_command('importfromfolder')
 
         self.task.status = 'Done'
 
