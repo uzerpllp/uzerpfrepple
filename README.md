@@ -43,7 +43,9 @@ $ python uzerpfrepple/setup.py install
 
 ## Add the frepple schema to the uzERP Database
 
-The frepple schema is included in the *schema* folder with the connector software. It can be added to the uzERP database using the PostgreSQL client by running the following command.
+The frepple schema is included in the *schema* folder with the connector software. The `schema.sql` file assumes that you have create a DB role called 'frepple' when installing the FrePPLe application ans will be using that with the uzERP connector.
+
+The schema can can be added to the uzERP database using the PostgreSQL client by running the following command:
 
 ```
 $ sudo -u postgres psql < /<path-to-connector>/schema/frepple.sql <uzerp-db-name>
