@@ -14,7 +14,7 @@ More on FrePPLe: https://frepple.com
 
 ## What is uzERP?
 
-uzERP is an opensource ERP system focused on UK SME/Owner managed businesses. It delivers big company functionality on a small company budget, including accounting, stock, manufacturing and more.
+uzERP is an open source ERP system focused on UK SME/Owner managed businesses. It delivers big company functionality on a small company budget, including accounting, stock, manufacturing and more.
 
 The FrePPLe connector for uzERP allows uzERP users to import sales orders, work orders, stock position, structures, operations, etc. into 
 FrePPLe Community Edition and generate proposed purchase and work orders. The connector provides complete two way integration including the export of proposed orders back to uzERP for execution.
@@ -23,7 +23,7 @@ More on uzERP: https://www.uzerp.com
 
 ## Connector Installation
 
-If you run FrePPLe using a python virtualenv, as we prefer to do, you can use `pip` to install the connector. If you have installed FrePPLe from the binary packages (e.g. on Ubuntu) then you can follow the `setup.py` method.
+If you run FrePPLe using a python virtualenv, as we prefer to do, you can use `pip` to install the connector. You can also follow the `setup.py` method.
 
 **Install using pip:**
 
@@ -40,6 +40,16 @@ $ python uzerpfrepple/setup.py install
 ```
 
 *If you installed FrePPLe from binary packages, you will need to prefix the above command with `sudo` to install it system-wide*
+
+## Add the frepple schema to the uzERP Database
+
+The frepple schema is included in the *schema* folder with the connector software. It can be added to the uzERP database using the PostgreSQL client by running the following command.
+
+```
+$ sudo -u postgres psql < /<path-to-connector>/schema/frepple.sql <uzerp-db-name>
+```
+
+*Note: you will need to replace <path-to-connector> with the location where you downloaded the connector to. <uzerp-db-name> is the name of your uzERP database*
 
 ## Settings
 
@@ -86,5 +96,58 @@ INSTALLED_APPS = (
 # and the user must have also been creted in the frepple application.
 AUTHENTICATION_BACKENDS = ['uzerp.uzerpauth.uzerpAuthBackend']
 ```
+
+## Using the connector
+
+The uzERP connector adds two tasks to FrePPLe's *Execute* menu:
+
+* Import data from uzERP (erp2frepple)
+* Export data to uzERP (frepple2erp)
+
+These tasks can also be run from the command line, e.g.:
+
+```
+$ frepplectl.py erptofrepple
+```
+
+### Import Data from uzERP
+
+Data from uzERP is imported via a number of PostgreSQL views under the *frepple* schema in the uzERP database. These views produce output to match FrePPLe's requirements for planning data. The connector retrieves the data from these views, creating a set of CSV files, then runs FrePPLe's *importfromfolder* command to import them.
+
+*See below for more detail on the mapping of data from uzERP to FrePPLe*
+
+### Export Data to uzERP
+
+For Work Orders, the connector selects the operation plan for *routing* type operations in FrePPLe and creates a matching work order in uzERP, at status NEW, for each requirement. Each work order will have the documents defined in the *djangosettings.py* configuration.
+
+Purchase orders from the operation plan are created in uzERP as potential, individual order lines and are viewed in the *Review Planned* screen in uzERP. From there they can be grouped as required and turned into actual purchase orders.
+
+### uzERP to Fepple Data Mapping
+
+**Table: uzERP/Frepple Data Mapping**
+
+**uzERP Data**   |   uzERP Data Type    |   **FrePPLe Data**  |  FrePPLe Data Type           |            Notes
+---|---|---|---|---
+**Items** |
+Min Qty | Stock Item | Minimum | Buffer | Minimum or *safety* stock. *The solver treats this as a soft constraint, ie it tries to meet this inventory level but will go below the minimum level if required to meet the demand.*
+Batch Size | Stock Item | Size Multiple | Operation (MF items) or Item Supplier (Purchased) | Order multiple. For example, if the multiple was 5 and 12 items were ordered, an order for 15 would be planned.
+Balance | Stock Balance | On hand | Buffer | Total item on hand stock balance from all of uzERP's locations.
+-- | -- | Mininterval | Buffer | Combine multiple replenishments that are planned to fall within this window. *Currently set to 5 days*.
+Lead Time | Stock Item | Lead Time | Item Supplier (Purchased) | Purchasing lead time for raw materials, expressed in days.
+Supplier Name | Purchased Productline | Supplier Name | Item Supplier | Supplier of each item from the uzERP purchased product-line. *FrePPLe will not buffer replenishment without a supplier source*
+**Work Centres** |
+Centre         |     Centre    |      Name        |        Resource       |                 Name
+Available Qty  |     Centre     |     Maximum     |        Resource       |                 Defines the maximum size of the resource.
+**Operations** |
+Operation Time   |   Operation   |    Duration Per    |    Sub-operation   | Operation time for each item produced.
+Lead Time        |   (Routing outside op.)   |    Duration        |    Sub-operation   | Outside operation lead time, expressed in days in uzERP and converted to seconds for FrePPLe. For example 1 day in uzERP is converted to 1 x 28800 sec = 28800 sec (8 hours), see supplier calendar.
+Work Centre Name |   Work Centre |    Resource      |      Name   | Operations are loaded on resources.
+**Orders** |
+Sales Orders     |   Order line and Customer  |   Sales Orders       | |                                 Dependent demand.
+Purchase Orders   |  Order line and Supplier  |   Purchase Orders    | |                                Raw materials on order.
+Work Orders     |    Item, Qty, Start Date, End Date   |  Manufacturing Orders  | |                              Work in Progress and Future, firm orders.
+**Calendars** |
+-- | -- | default | | Applied as the *available* calendar for Operations, Sub-operations and Locations. This calendar represents working time in the factory.
+-- | -- | supplier | | Applied as the *available* calendar to 'outside' sub-operations to model supplier lead time in days. The calendar must have 8 hours available Monday - Friday (assumes supplier only work on weekdays).
 
 **Note: this connector has not been tested on windows**
