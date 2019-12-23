@@ -3,9 +3,9 @@
 --
 
 -- Dumped from database version 10.6 (Ubuntu 10.6-0ubuntu0.18.04.1)
--- Dumped by pg_dump version 11.3
+-- Dumped by pg_dump version 11.6
 
--- Started on 2019-07-10 12:00:51 BST
+-- Started on 2019-12-23 13:48:45 GMT
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -29,7 +29,7 @@ CREATE SCHEMA frepple;
 ALTER SCHEMA frepple OWNER TO sysadmin;
 
 --
--- TOC entry 1062 (class 1259 OID 32216)
+-- TOC entry 1040 (class 1259 OID 32216)
 -- Name: end_item_selection; Type: VIEW; Schema: frepple; Owner: sysadmin
 --
 
@@ -45,7 +45,7 @@ CREATE VIEW frepple.end_item_selection AS
 ALTER TABLE frepple.end_item_selection OWNER TO sysadmin;
 
 --
--- TOC entry 1063 (class 1259 OID 32221)
+-- TOC entry 1041 (class 1259 OID 32221)
 -- Name: item_selection; Type: VIEW; Schema: frepple; Owner: sysadmin
 --
 
@@ -104,7 +104,7 @@ UNION
 ALTER TABLE frepple.item_selection OWNER TO sysadmin;
 
 --
--- TOC entry 1064 (class 1259 OID 32226)
+-- TOC entry 1073 (class 1259 OID 343136)
 -- Name: buffers; Type: VIEW; Schema: frepple; Owner: sysadmin
 --
 
@@ -141,7 +141,7 @@ CREATE VIEW frepple.buffers AS
 ALTER TABLE frepple.buffers OWNER TO sysadmin;
 
 --
--- TOC entry 1065 (class 1259 OID 32231)
+-- TOC entry 1042 (class 1259 OID 32231)
 -- Name: customers; Type: VIEW; Schema: frepple; Owner: sysadmin
 --
 
@@ -157,7 +157,7 @@ CREATE VIEW frepple.customers AS
 ALTER TABLE frepple.customers OWNER TO sysadmin;
 
 --
--- TOC entry 1066 (class 1259 OID 32236)
+-- TOC entry 1043 (class 1259 OID 32236)
 -- Name: item_suppliers; Type: VIEW; Schema: frepple; Owner: sysadmin
 --
 
@@ -185,7 +185,7 @@ CREATE VIEW frepple.item_suppliers AS
 ALTER TABLE frepple.item_suppliers OWNER TO sysadmin;
 
 --
--- TOC entry 1067 (class 1259 OID 32241)
+-- TOC entry 1044 (class 1259 OID 32241)
 -- Name: items; Type: VIEW; Schema: frepple; Owner: sysadmin
 --
 
@@ -205,7 +205,7 @@ CREATE VIEW frepple.items AS
 ALTER TABLE frepple.items OWNER TO sysadmin;
 
 --
--- TOC entry 1068 (class 1259 OID 32246)
+-- TOC entry 1045 (class 1259 OID 32246)
 -- Name: locations; Type: VIEW; Schema: frepple; Owner: sysadmin
 --
 
@@ -219,7 +219,7 @@ CREATE VIEW frepple.locations AS
 ALTER TABLE frepple.locations OWNER TO sysadmin;
 
 --
--- TOC entry 1069 (class 1259 OID 32250)
+-- TOC entry 1046 (class 1259 OID 32250)
 -- Name: manufacturing_orders; Type: VIEW; Schema: frepple; Owner: sysadmin
 --
 
@@ -240,7 +240,7 @@ CREATE VIEW frepple.manufacturing_orders AS
 ALTER TABLE frepple.manufacturing_orders OWNER TO sysadmin;
 
 --
--- TOC entry 1070 (class 1259 OID 32255)
+-- TOC entry 1047 (class 1259 OID 32255)
 -- Name: operation_materials; Type: VIEW; Schema: frepple; Owner: sysadmin
 --
 
@@ -278,7 +278,7 @@ UNION
 ALTER TABLE frepple.operation_materials OWNER TO sysadmin;
 
 --
--- TOC entry 1071 (class 1259 OID 32260)
+-- TOC entry 1048 (class 1259 OID 32260)
 -- Name: operation_resources; Type: VIEW; Schema: frepple; Owner: sysadmin
 --
 
@@ -296,11 +296,29 @@ CREATE VIEW frepple.operation_resources AS
 ALTER TABLE frepple.operation_resources OWNER TO sysadmin;
 
 --
--- TOC entry 1072 (class 1259 OID 32265)
+-- TOC entry 1072 (class 1259 OID 341989)
 -- Name: operations; Type: VIEW; Schema: frepple; Owner: sysadmin
 --
 
 CREATE VIEW frepple.operations AS
+ SELECT (('Make'::text || ' - '::text) || (s.item_code)::text) AS name,
+    s.item_code AS item,
+    0 AS duration,
+    0 AS duration_per,
+    'routing'::text AS type,
+    'MAIN'::text AS location,
+    ''::text AS description,
+    s.batch_size,
+    'default'::text AS available,
+        CASE
+            WHEN ((s.comp_class)::text = 'M'::text) THEN 'Work Order'::text
+            ELSE 'Outside Operation'::text
+        END AS category,
+    ''::text AS owner
+   FROM public.st_items s
+  WHERE ((s.obsolete_date IS NULL) AND (((s.comp_class)::text = 'M'::text) OR ((s.comp_class)::text = 'S'::text)) AND (s.id IN ( SELECT item_selection.item_id
+           FROM frepple.item_selection)))
+UNION
  SELECT (((o.op_no)::text || ' - '::text) || (s.item_code)::text) AS name,
     s.item_code AS item,
         CASE
@@ -334,30 +352,14 @@ CREATE VIEW frepple.operations AS
         CASE
             WHEN ((o.type)::text = 'O'::text) THEN 'Routing Outside Processing'::text
             ELSE 'Operation'::text
-        END AS category
+        END AS category,
+    (('Make'::text || ' - '::text) || (s.item_code)::text) AS owner
    FROM ((((public.mf_operations o
      JOIN public.st_items s ON ((o.stitem_id = s.id)))
      JOIN public.st_uoms u ON ((o.volume_uom_id = u.id)))
      JOIN public.mf_centres c ON ((o.mfcentre_id = c.id)))
      JOIN public.mf_resources r ON ((o.mfresource_id = r.id)))
   WHERE ((s.obsolete_date IS NULL) AND ((o.end_date > now()) OR (o.end_date IS NULL)) AND (o.start_date <= now()) AND (s.id IN ( SELECT item_selection.item_id
-           FROM frepple.item_selection)))
-UNION
- SELECT (('Make'::text || ' - '::text) || (s.item_code)::text) AS name,
-    s.item_code AS item,
-    0 AS duration,
-    0 AS duration_per,
-    'routing'::text AS type,
-    'MAIN'::text AS location,
-    ''::text AS description,
-    s.batch_size,
-    'default'::text AS available,
-        CASE
-            WHEN ((s.comp_class)::text = 'M'::text) THEN 'Work Order'::text
-            ELSE 'Outside Operation'::text
-        END AS category
-   FROM public.st_items s
-  WHERE ((s.obsolete_date IS NULL) AND (((s.comp_class)::text = 'M'::text) OR ((s.comp_class)::text = 'S'::text)) AND (s.id IN ( SELECT item_selection.item_id
            FROM frepple.item_selection)))
 UNION
  SELECT (((((1000)::numeric + (o.op_no)::numeric))::text || ' - '::text) || (s.item_code)::text) AS name,
@@ -369,7 +371,8 @@ UNION
     o.description,
     s.batch_size,
     'supplier'::text AS available,
-    'Outside Processing'::text AS category
+    'Outside Processing'::text AS category,
+    (('Make'::text || ' - '::text) || (s.item_code)::text) AS owner
    FROM (public.mf_outside_ops o
      JOIN public.st_items s ON ((o.stitem_id = s.id)))
   WHERE ((s.obsolete_date IS NULL) AND ((o.end_date > now()) OR (o.end_date IS NULL)) AND (o.start_date <= now()) AND (s.id IN ( SELECT item_selection.item_id
@@ -379,7 +382,7 @@ UNION
 ALTER TABLE frepple.operations OWNER TO sysadmin;
 
 --
--- TOC entry 1073 (class 1259 OID 32270)
+-- TOC entry 1049 (class 1259 OID 32270)
 -- Name: purchase_orders; Type: VIEW; Schema: frepple; Owner: sysadmin
 --
 
@@ -407,7 +410,7 @@ CREATE VIEW frepple.purchase_orders AS
 ALTER TABLE frepple.purchase_orders OWNER TO sysadmin;
 
 --
--- TOC entry 1074 (class 1259 OID 32275)
+-- TOC entry 1050 (class 1259 OID 32275)
 -- Name: resources; Type: VIEW; Schema: frepple; Owner: sysadmin
 --
 
@@ -423,7 +426,7 @@ CREATE VIEW frepple.resources AS
 ALTER TABLE frepple.resources OWNER TO sysadmin;
 
 --
--- TOC entry 1075 (class 1259 OID 32279)
+-- TOC entry 1051 (class 1259 OID 32279)
 -- Name: sales_orders; Type: VIEW; Schema: frepple; Owner: sysadmin
 --
 
@@ -451,7 +454,7 @@ CREATE VIEW frepple.sales_orders AS
 ALTER TABLE frepple.sales_orders OWNER TO sysadmin;
 
 --
--- TOC entry 1076 (class 1259 OID 32284)
+-- TOC entry 1052 (class 1259 OID 32284)
 -- Name: sub_operations; Type: VIEW; Schema: frepple; Owner: sysadmin
 --
 
@@ -476,7 +479,7 @@ UNION
 ALTER TABLE frepple.sub_operations OWNER TO sysadmin;
 
 --
--- TOC entry 1077 (class 1259 OID 32289)
+-- TOC entry 1053 (class 1259 OID 32289)
 -- Name: suppliers; Type: VIEW; Schema: frepple; Owner: sysadmin
 --
 
@@ -493,7 +496,7 @@ CREATE VIEW frepple.suppliers AS
 ALTER TABLE frepple.suppliers OWNER TO sysadmin;
 
 --
--- TOC entry 1078 (class 1259 OID 32294)
+-- TOC entry 1054 (class 1259 OID 32294)
 -- Name: uzerp_auth; Type: VIEW; Schema: frepple; Owner: sysadmin
 --
 
@@ -509,7 +512,7 @@ CREATE VIEW frepple.uzerp_auth AS
 ALTER TABLE frepple.uzerp_auth OWNER TO sysadmin;
 
 --
--- TOC entry 5760 (class 0 OID 0)
+-- TOC entry 5738 (class 0 OID 0)
 -- Dependencies: 5
 -- Name: SCHEMA frepple; Type: ACL; Schema: -; Owner: sysadmin
 --
@@ -518,8 +521,8 @@ GRANT USAGE ON SCHEMA frepple TO frepple;
 
 
 --
--- TOC entry 5761 (class 0 OID 0)
--- Dependencies: 1062
+-- TOC entry 5739 (class 0 OID 0)
+-- Dependencies: 1040
 -- Name: TABLE end_item_selection; Type: ACL; Schema: frepple; Owner: sysadmin
 --
 
@@ -527,8 +530,8 @@ GRANT SELECT ON TABLE frepple.end_item_selection TO frepple;
 
 
 --
--- TOC entry 5762 (class 0 OID 0)
--- Dependencies: 1064
+-- TOC entry 5740 (class 0 OID 0)
+-- Dependencies: 1073
 -- Name: TABLE buffers; Type: ACL; Schema: frepple; Owner: sysadmin
 --
 
@@ -536,8 +539,8 @@ GRANT SELECT ON TABLE frepple.buffers TO frepple;
 
 
 --
--- TOC entry 5763 (class 0 OID 0)
--- Dependencies: 1065
+-- TOC entry 5741 (class 0 OID 0)
+-- Dependencies: 1042
 -- Name: TABLE customers; Type: ACL; Schema: frepple; Owner: sysadmin
 --
 
@@ -545,8 +548,8 @@ GRANT SELECT ON TABLE frepple.customers TO frepple;
 
 
 --
--- TOC entry 5764 (class 0 OID 0)
--- Dependencies: 1066
+-- TOC entry 5742 (class 0 OID 0)
+-- Dependencies: 1043
 -- Name: TABLE item_suppliers; Type: ACL; Schema: frepple; Owner: sysadmin
 --
 
@@ -554,8 +557,8 @@ GRANT SELECT ON TABLE frepple.item_suppliers TO frepple;
 
 
 --
--- TOC entry 5765 (class 0 OID 0)
--- Dependencies: 1067
+-- TOC entry 5743 (class 0 OID 0)
+-- Dependencies: 1044
 -- Name: TABLE items; Type: ACL; Schema: frepple; Owner: sysadmin
 --
 
@@ -563,8 +566,8 @@ GRANT SELECT ON TABLE frepple.items TO frepple;
 
 
 --
--- TOC entry 5766 (class 0 OID 0)
--- Dependencies: 1068
+-- TOC entry 5744 (class 0 OID 0)
+-- Dependencies: 1045
 -- Name: TABLE locations; Type: ACL; Schema: frepple; Owner: sysadmin
 --
 
@@ -572,8 +575,8 @@ GRANT SELECT ON TABLE frepple.locations TO frepple;
 
 
 --
--- TOC entry 5767 (class 0 OID 0)
--- Dependencies: 1069
+-- TOC entry 5745 (class 0 OID 0)
+-- Dependencies: 1046
 -- Name: TABLE manufacturing_orders; Type: ACL; Schema: frepple; Owner: sysadmin
 --
 
@@ -581,8 +584,8 @@ GRANT SELECT ON TABLE frepple.manufacturing_orders TO frepple;
 
 
 --
--- TOC entry 5768 (class 0 OID 0)
--- Dependencies: 1070
+-- TOC entry 5746 (class 0 OID 0)
+-- Dependencies: 1047
 -- Name: TABLE operation_materials; Type: ACL; Schema: frepple; Owner: sysadmin
 --
 
@@ -590,8 +593,8 @@ GRANT SELECT ON TABLE frepple.operation_materials TO frepple;
 
 
 --
--- TOC entry 5769 (class 0 OID 0)
--- Dependencies: 1071
+-- TOC entry 5747 (class 0 OID 0)
+-- Dependencies: 1048
 -- Name: TABLE operation_resources; Type: ACL; Schema: frepple; Owner: sysadmin
 --
 
@@ -599,7 +602,7 @@ GRANT SELECT ON TABLE frepple.operation_resources TO frepple;
 
 
 --
--- TOC entry 5770 (class 0 OID 0)
+-- TOC entry 5748 (class 0 OID 0)
 -- Dependencies: 1072
 -- Name: TABLE operations; Type: ACL; Schema: frepple; Owner: sysadmin
 --
@@ -608,8 +611,8 @@ GRANT SELECT ON TABLE frepple.operations TO frepple;
 
 
 --
--- TOC entry 5771 (class 0 OID 0)
--- Dependencies: 1073
+-- TOC entry 5749 (class 0 OID 0)
+-- Dependencies: 1049
 -- Name: TABLE purchase_orders; Type: ACL; Schema: frepple; Owner: sysadmin
 --
 
@@ -617,8 +620,8 @@ GRANT SELECT ON TABLE frepple.purchase_orders TO frepple;
 
 
 --
--- TOC entry 5772 (class 0 OID 0)
--- Dependencies: 1074
+-- TOC entry 5750 (class 0 OID 0)
+-- Dependencies: 1050
 -- Name: TABLE resources; Type: ACL; Schema: frepple; Owner: sysadmin
 --
 
@@ -626,8 +629,8 @@ GRANT SELECT ON TABLE frepple.resources TO frepple;
 
 
 --
--- TOC entry 5773 (class 0 OID 0)
--- Dependencies: 1075
+-- TOC entry 5751 (class 0 OID 0)
+-- Dependencies: 1051
 -- Name: TABLE sales_orders; Type: ACL; Schema: frepple; Owner: sysadmin
 --
 
@@ -635,8 +638,8 @@ GRANT SELECT ON TABLE frepple.sales_orders TO frepple;
 
 
 --
--- TOC entry 5774 (class 0 OID 0)
--- Dependencies: 1076
+-- TOC entry 5752 (class 0 OID 0)
+-- Dependencies: 1052
 -- Name: TABLE sub_operations; Type: ACL; Schema: frepple; Owner: sysadmin
 --
 
@@ -644,8 +647,8 @@ GRANT SELECT ON TABLE frepple.sub_operations TO frepple;
 
 
 --
--- TOC entry 5775 (class 0 OID 0)
--- Dependencies: 1077
+-- TOC entry 5753 (class 0 OID 0)
+-- Dependencies: 1053
 -- Name: TABLE suppliers; Type: ACL; Schema: frepple; Owner: sysadmin
 --
 
@@ -653,28 +656,17 @@ GRANT SELECT ON TABLE frepple.suppliers TO frepple;
 
 
 --
--- TOC entry 5776 (class 0 OID 0)
--- Dependencies: 1078
+-- TOC entry 5754 (class 0 OID 0)
+-- Dependencies: 1054
 -- Name: TABLE uzerp_auth; Type: ACL; Schema: frepple; Owner: sysadmin
 --
 
 GRANT SELECT ON TABLE frepple.uzerp_auth TO frepple;
 
 
--- Completed on 2019-07-10 12:00:52 BST
+-- Completed on 2019-12-23 13:48:45 GMT
 
 --
 -- PostgreSQL database dump complete
 --
 
---
--- Grants required for exports back to uzERP from frepple
---
-GRANT SELECT ON public.st_items TO frepple;
-GRANT SELECT ON TABLE public.mf_structures TO frepple;
-GRANT SELECT, INSERT ON TABLE public.mf_wo_structures TO frepple;
-GRANT SELECT, INSERT ON TABLE public.mf_workorders TO frepple;
-GRANT USAGE ON SEQUENCE public.mf_wo_structures_id_seq TO frepple;
-GRANT USAGE ON SEQUENCE public.mf_workorders_id_seq TO frepple;
-GRANT INSERT ON TABLE public.po_planned TO frepple;
-GRANT USAGE ON SEQUENCE public.po_planned_id_seq TO frepple;
