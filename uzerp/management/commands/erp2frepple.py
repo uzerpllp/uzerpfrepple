@@ -78,7 +78,7 @@ class Command(BaseCommand):
             <td style="vertical-align:top; padding: 15px">
                <button  class="btn btn-primary"  type="submit" value="{% trans "launch"|capfirst %}">{% trans "launch"|capfirst %}</button>
             </td>
-            <td  style="padding: 0px 15px;">{% trans "Import uzERP data into frePPLe." %}
+            <td  style="padding: 0px 15px;">{% trans "Import uzERP data into FrePPLe" %}
             </td>
           </tr>
         </table>
@@ -159,9 +159,9 @@ class Command(BaseCommand):
         self.task.status = '49%'
         self.task.save(using=self.database)
 
-        self.extractSuboperation()
-        self.task.status = '48%'
-        self.task.save(using=self.database)
+        #self.extractSuboperation()
+        #self.task.status = '48%'
+        #self.task.save(using=self.database)
 
         self.extractOperationResource()
         self.task.status = '56%'
@@ -312,31 +312,31 @@ class Command(BaseCommand):
     outfilename = os.path.join(self.destination, 'operation.%s' % self.ext)
     print("Start extracting operations to %s" % outfilename)
     self.cursor.execute('''
-      select * from frepple.operations
+      select * from frepple.operations order by name desc
       ''')
     with open(outfilename, 'w', newline='') as outfile:
       outcsv = csv.writer(outfile, quoting=csv.QUOTE_MINIMAL)
       outcsv.writerow([
-        'name', 'item', 'duration', 'duration_per', 'type', 'location', 'description', 'sizemultiple', 'available', 'category'
+        'name', 'item', 'duration', 'duration_per', 'type', 'location', 'description', 'sizemultiple', 'available', 'category', 'owner'
         ])
       outcsv.writerows(self.cursor.fetchall())
 
 
-  def extractSuboperation(self):
-    '''
-    Import uzERP operations as frePPLe suboperations.
-    '''
-    outfilename = os.path.join(self.destination, 'suboperation.%s' % self.ext)
-    print("Start extracting suboperations to %s" % outfilename)
-    self.cursor.execute('''
-      select * from frepple.sub_operations
-      ''')
-    with open(outfilename, 'w', newline='') as outfile:
-      outcsv = csv.writer(outfile, quoting=csv.QUOTE_MINIMAL)
-      outcsv.writerow([
-        'suboperation', 'operation', 'priority'
-        ])
-      outcsv.writerows(self.cursor.fetchall())
+  # def extractSuboperation(self):
+  #   '''
+  #   Import uzERP operations as frePPLe suboperations.
+  #   '''
+  #   outfilename = os.path.join(self.destination, 'suboperation.%s' % self.ext)
+  #   print("Start extracting suboperations to %s" % outfilename)
+  #   self.cursor.execute('''
+  #     select * from frepple.sub_operations
+  #     ''')
+  #   with open(outfilename, 'w', newline='') as outfile:
+  #     outcsv = csv.writer(outfile, quoting=csv.QUOTE_MINIMAL)
+  #     outcsv.writerow([
+  #       'suboperation', 'operation', 'priority'
+  #       ])
+  #     outcsv.writerows(self.cursor.fetchall())
 
 
   def extractOperationResource(self):
@@ -385,7 +385,7 @@ class Command(BaseCommand):
     with open(outfilename, 'w', newline='') as outfile:
       outcsv = csv.writer(outfile, quoting=csv.QUOTE_MINIMAL)
       outcsv.writerow([
-        'name', 'location', 'item', 'onhand', 'minimum', 'min_interval', 
+        'description', 'location', 'item', 'onhand', 'minimum', 'min_interval', 
         ])
       outcsv.writerows(self.cursor.fetchall())
 
