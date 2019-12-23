@@ -159,10 +159,6 @@ class Command(BaseCommand):
         self.task.status = '49%'
         self.task.save(using=self.database)
 
-        #self.extractSuboperation()
-        #self.task.status = '48%'
-        #self.task.save(using=self.database)
-
         self.extractOperationResource()
         self.task.status = '56%'
         self.task.save(using=self.database)
@@ -320,23 +316,6 @@ class Command(BaseCommand):
         'name', 'item', 'duration', 'duration_per', 'type', 'location', 'description', 'sizemultiple', 'available', 'category', 'owner'
         ])
       outcsv.writerows(self.cursor.fetchall())
-
-
-  # def extractSuboperation(self):
-  #   '''
-  #   Import uzERP operations as frePPLe suboperations.
-  #   '''
-  #   outfilename = os.path.join(self.destination, 'suboperation.%s' % self.ext)
-  #   print("Start extracting suboperations to %s" % outfilename)
-  #   self.cursor.execute('''
-  #     select * from frepple.sub_operations
-  #     ''')
-  #   with open(outfilename, 'w', newline='') as outfile:
-  #     outcsv = csv.writer(outfile, quoting=csv.QUOTE_MINIMAL)
-  #     outcsv.writerow([
-  #       'suboperation', 'operation', 'priority'
-  #       ])
-  #     outcsv.writerows(self.cursor.fetchall())
 
 
   def extractOperationResource(self):
