@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Fixed
+
+- Remove sub_operations table from schema dump
+
 ## 1.1
 
 ### Changed
