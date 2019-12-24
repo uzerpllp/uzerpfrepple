@@ -5,7 +5,7 @@
 -- Dumped from database version 10.6 (Ubuntu 10.6-0ubuntu0.18.04.1)
 -- Dumped by pg_dump version 11.6
 
--- Started on 2019-12-23 14:20:32 GMT
+-- Started on 2019-12-24 12:29:58 GMT
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -104,19 +104,43 @@ UNION
 ALTER TABLE frepple.item_selection OWNER TO sysadmin;
 
 --
--- TOC entry 1072 (class 1259 OID 343136)
+-- TOC entry 1072 (class 1259 OID 347786)
 -- Name: buffers; Type: VIEW; Schema: frepple; Owner: sysadmin
 --
 
 CREATE VIEW frepple.buffers AS
  SELECT
         CASE
-            WHEN (sum(stb.balance) IS NOT NULL) THEN (((sti.item_code)::text || ' @ '::text) || (whs.store_code)::text)
-            ELSE (((sti.item_code)::text || ' @ '::text) || 'MAIN'::text)
+            WHEN ((sum(stb.balance) IS NOT NULL) AND ((sti.comp_class)::text = 'M'::text)) THEN (((sti.item_code)::text || ' @ '::text) || (( SELECT whs_1.store_code
+               FROM (((public.wh_transfer_rules wtr
+                 LEFT JOIN public.wh_actions wha ON ((wha.id = wtr.whaction_id)))
+                 LEFT JOIN public.wh_locations whl_1 ON ((whl_1.id = wtr.to_whlocation_id)))
+                 LEFT JOIN public.wh_stores whs_1 ON ((whs_1.id = whl_1.whstore_id)))
+              WHERE ((wha.type)::text = 'C'::text)
+             LIMIT 1))::text)
+            ELSE (((sti.item_code)::text || ' @ '::text) || (( SELECT whs_1.store_code
+               FROM (((public.wh_transfer_rules wtr
+                 LEFT JOIN public.wh_actions wha ON ((wha.id = wtr.whaction_id)))
+                 LEFT JOIN public.wh_locations whl_1 ON ((whl_1.id = wtr.to_whlocation_id)))
+                 LEFT JOIN public.wh_stores whs_1 ON ((whs_1.id = whl_1.whstore_id)))
+              WHERE ((wha.type)::text = 'R'::text)
+             LIMIT 1))::text)
         END AS name,
         CASE
-            WHEN (sum(stb.balance) IS NOT NULL) THEN (whs.store_code)::text
-            ELSE 'MAIN'::text
+            WHEN ((sti.comp_class)::text = 'M'::text) THEN ( SELECT whs_1.store_code
+               FROM (((public.wh_transfer_rules wtr
+                 LEFT JOIN public.wh_actions wha ON ((wha.id = wtr.whaction_id)))
+                 LEFT JOIN public.wh_locations whl_1 ON ((whl_1.id = wtr.to_whlocation_id)))
+                 LEFT JOIN public.wh_stores whs_1 ON ((whs_1.id = whl_1.whstore_id)))
+              WHERE ((wha.type)::text = 'C'::text)
+             LIMIT 1)
+            ELSE ( SELECT whs_1.store_code
+               FROM (((public.wh_transfer_rules wtr
+                 LEFT JOIN public.wh_actions wha ON ((wha.id = wtr.whaction_id)))
+                 LEFT JOIN public.wh_locations whl_1 ON ((whl_1.id = wtr.to_whlocation_id)))
+                 LEFT JOIN public.wh_stores whs_1 ON ((whs_1.id = whl_1.whstore_id)))
+              WHERE ((wha.type)::text = 'R'::text)
+             LIMIT 1)
         END AS location,
     sti.item_code AS item,
         CASE
@@ -306,7 +330,13 @@ CREATE VIEW frepple.operations AS
     0 AS duration,
     0 AS duration_per,
     'routing'::text AS type,
-    'MAIN'::text AS location,
+    (( SELECT whs.store_code
+           FROM (((public.wh_transfer_rules wtr
+             LEFT JOIN public.wh_actions wha ON ((wha.id = wtr.whaction_id)))
+             LEFT JOIN public.wh_locations whl ON ((whl.id = wtr.to_whlocation_id)))
+             LEFT JOIN public.wh_stores whs ON ((whs.id = whl.whstore_id)))
+          WHERE ((wha.type)::text = 'C'::text)
+         LIMIT 1))::text AS location,
     ''::text AS description,
     s.batch_size,
     'default'::text AS available,
@@ -342,7 +372,13 @@ UNION
             WHEN ((o.type)::text = 'O'::text) THEN 'fixed_time'::text
             ELSE 'time_per'::text
         END AS type,
-    'MAIN'::text AS location,
+    (( SELECT whs.store_code
+           FROM (((public.wh_transfer_rules wtr
+             LEFT JOIN public.wh_actions wha ON ((wha.id = wtr.whaction_id)))
+             LEFT JOIN public.wh_locations whl ON ((whl.id = wtr.to_whlocation_id)))
+             LEFT JOIN public.wh_stores whs ON ((whs.id = whl.whstore_id)))
+          WHERE ((wha.type)::text = 'C'::text)
+         LIMIT 1))::text AS location,
     o.remarks AS description,
     s.batch_size,
         CASE
@@ -367,7 +403,13 @@ UNION
     (round(((28800 * 7))::numeric, 0))::integer AS duration,
     0 AS duration_per,
     'fixed_time'::text AS type,
-    'MAIN'::text AS location,
+    (( SELECT whs.store_code
+           FROM (((public.wh_transfer_rules wtr
+             LEFT JOIN public.wh_actions wha ON ((wha.id = wtr.whaction_id)))
+             LEFT JOIN public.wh_locations whl ON ((whl.id = wtr.to_whlocation_id)))
+             LEFT JOIN public.wh_stores whs ON ((whs.id = whl.whstore_id)))
+          WHERE ((wha.type)::text = 'C'::text)
+         LIMIT 1))::text AS location,
     o.description,
     s.batch_size,
     'supplier'::text AS available,
@@ -416,7 +458,13 @@ ALTER TABLE frepple.purchase_orders OWNER TO sysadmin;
 
 CREATE VIEW frepple.resources AS
  SELECT mf_centres.centre AS name,
-    'MAIN'::text AS location,
+    (( SELECT whs.store_code
+           FROM (((public.wh_transfer_rules wtr
+             LEFT JOIN public.wh_actions wha ON ((wha.id = wtr.whaction_id)))
+             LEFT JOIN public.wh_locations whl ON ((whl.id = wtr.to_whlocation_id)))
+             LEFT JOIN public.wh_stores whs ON ((whs.id = whl.whstore_id)))
+          WHERE ((wha.type)::text = 'C'::text)
+         LIMIT 1))::text AS location,
     'default'::text AS type,
     mf_centres.available_qty AS maximum,
     ''::text AS available
@@ -630,20 +678,9 @@ GRANT SELECT ON TABLE frepple.suppliers TO frepple;
 GRANT SELECT ON TABLE frepple.uzerp_auth TO frepple;
 
 
--- Completed on 2019-12-23 14:20:33 GMT
+-- Completed on 2019-12-24 12:29:59 GMT
 
 --
 -- PostgreSQL database dump complete
 --
 
----
---- Grants required for exports back to uzERP from frepple
----
-GRANT SELECT ON public.st_items TO frepple;
-GRANT SELECT ON TABLE public.mf_structures TO frepple;
-GRANT SELECT, INSERT ON TABLE public.mf_wo_structures TO frepple;
-GRANT SELECT, INSERT ON TABLE public.mf_workorders TO frepple;
-GRANT USAGE ON SEQUENCE public.mf_wo_structures_id_seq TO frepple;
-GRANT USAGE ON SEQUENCE public.mf_workorders_id_seq TO frepple;
-GRANT INSERT ON TABLE public.po_planned TO frepple;
-GRANT USAGE ON SEQUENCE public.po_planned_id_seq TO frepple;
