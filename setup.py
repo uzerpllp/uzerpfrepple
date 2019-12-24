@@ -23,7 +23,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="uzerpfrepple",
-    version="1.1",
+    version="1.2",
     author="uzERP LLP",
     author_email="sblamey@uzerp.com",
     description="Frepple ERP connector for uzERP",
