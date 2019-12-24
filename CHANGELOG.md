@@ -2,11 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 1.2
 
 ### Fixed
 
 - Remove sub_operations table from schema dump
+
+### Changed
+
+- Get locations from uzERP stock actions
+    - A 'complete' type action provides the store code for manufactured items
+    - and a 'receive' type action provides the store code for purchased items
+
+- Move frePPLe export grants to their own file
 
 ## 1.1
 
