@@ -51,6 +51,12 @@ The schema can can be added to the uzERP database using the PostgreSQL client by
 $ sudo -u postgres psql < /<path-to-connector>/schema/frepple.sql <uzerp-db-name>
 ```
 
+Grant the *frepple* role the permissions it needs to write to the uzERP database when exporting planned orders back to uzERP:
+
+```
+$ sudo -u postgres psql < /<path-to-connector>/schema/frepple-grants.sql <uzerp-db-name>
+```
+
 *Note: you will need to replace `<path-to-connector>` with the location where you downloaded the connector to. `<uzerp-db-name>` is the name of your uzERP database*
 
 ## Settings
@@ -155,5 +161,7 @@ Work Orders     |    Item, Qty, Start Date, End Date   |  Manufacturing Orders  
 **Calendars** |
 -- | -- | default | | Applied as the *available* calendar for Operations, Sub-operations and Locations. This calendar represents working time in the factory.
 -- | -- | supplier | | Applied as the *available* calendar to 'outside' sub-operations to model supplier lead time in days. The calendar must have 8 hours available Monday - Friday (assumes supplier only work on weekdays).
+
+*Locations are modelled at the uzERP Store level and named using the store code*
 
 **Note: this connector has not been tested on windows**
