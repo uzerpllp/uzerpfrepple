@@ -5,7 +5,7 @@
 -- Dumped from database version 10.6 (Ubuntu 10.6-0ubuntu0.18.04.1)
 -- Dumped by pg_dump version 11.6
 
--- Started on 2019-12-24 12:29:58 GMT
+-- Started on 2020-01-06 16:06:00 GMT
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -104,7 +104,7 @@ UNION
 ALTER TABLE frepple.item_selection OWNER TO sysadmin;
 
 --
--- TOC entry 1072 (class 1259 OID 347786)
+-- TOC entry 1071 (class 1259 OID 347786)
 -- Name: buffers; Type: VIEW; Schema: frepple; Owner: sysadmin
 --
 
@@ -112,11 +112,11 @@ CREATE VIEW frepple.buffers AS
  SELECT
         CASE
             WHEN ((sum(stb.balance) IS NOT NULL) AND ((sti.comp_class)::text = 'M'::text)) THEN (((sti.item_code)::text || ' @ '::text) || (( SELECT whs_1.store_code
-               FROM (((public.wh_transfer_rules wtr
-                 LEFT JOIN public.wh_actions wha ON ((wha.id = wtr.whaction_id)))
-                 LEFT JOIN public.wh_locations whl_1 ON ((whl_1.id = wtr.to_whlocation_id)))
-                 LEFT JOIN public.wh_stores whs_1 ON ((whs_1.id = whl_1.whstore_id)))
-              WHERE ((wha.type)::text = 'C'::text)
+               FROM ((((public.wh_transfer_rules wtr
+                 JOIN public.st_typecodes stc ON ((stc.id = sti.type_code_id)))
+                 JOIN public.wh_actions wha ON ((wha.id = stc.complete_action_id)))
+                 JOIN public.wh_locations whl_1 ON ((whl_1.id = wtr.to_whlocation_id)))
+                 JOIN public.wh_stores whs_1 ON ((whs_1.id = whl_1.whstore_id)))
              LIMIT 1))::text)
             ELSE (((sti.item_code)::text || ' @ '::text) || (( SELECT whs_1.store_code
                FROM (((public.wh_transfer_rules wtr
@@ -128,8 +128,9 @@ CREATE VIEW frepple.buffers AS
         END AS name,
         CASE
             WHEN ((sti.comp_class)::text = 'M'::text) THEN ( SELECT whs_1.store_code
-               FROM (((public.wh_transfer_rules wtr
-                 LEFT JOIN public.wh_actions wha ON ((wha.id = wtr.whaction_id)))
+               FROM ((((public.wh_transfer_rules wtr
+                 JOIN public.st_typecodes stc ON ((stc.id = sti.type_code_id)))
+                 JOIN public.wh_actions wha ON ((wha.id = stc.complete_action_id)))
                  LEFT JOIN public.wh_locations whl_1 ON ((whl_1.id = wtr.to_whlocation_id)))
                  LEFT JOIN public.wh_stores whs_1 ON ((whs_1.id = whl_1.whstore_id)))
               WHERE ((wha.type)::text = 'C'::text)
@@ -158,7 +159,7 @@ CREATE VIEW frepple.buffers AS
      LEFT JOIN public.wh_stores whs ON ((whl.whstore_id = whs.id)))
   WHERE ((sti.id IN ( SELECT item_selection.item_id
            FROM frepple.item_selection)) AND (sti.obsolete_date IS NULL))
-  GROUP BY whs.store_code, sti.item_code, sti.min_qty, sti.comp_class
+  GROUP BY whs.store_code, sti.type_code_id, sti.item_code, sti.min_qty, sti.comp_class
   ORDER BY sti.item_code;
 
 
@@ -320,7 +321,7 @@ CREATE VIEW frepple.operation_resources AS
 ALTER TABLE frepple.operation_resources OWNER TO sysadmin;
 
 --
--- TOC entry 1071 (class 1259 OID 341989)
+-- TOC entry 1072 (class 1259 OID 349547)
 -- Name: operations; Type: VIEW; Schema: frepple; Owner: sysadmin
 --
 
@@ -331,11 +332,11 @@ CREATE VIEW frepple.operations AS
     0 AS duration_per,
     'routing'::text AS type,
     (( SELECT whs.store_code
-           FROM (((public.wh_transfer_rules wtr
-             LEFT JOIN public.wh_actions wha ON ((wha.id = wtr.whaction_id)))
-             LEFT JOIN public.wh_locations whl ON ((whl.id = wtr.to_whlocation_id)))
-             LEFT JOIN public.wh_stores whs ON ((whs.id = whl.whstore_id)))
-          WHERE ((wha.type)::text = 'C'::text)
+           FROM ((((public.wh_transfer_rules wtr
+             JOIN public.st_typecodes stc ON ((stc.id = s.type_code_id)))
+             JOIN public.wh_actions wha ON ((wha.id = stc.complete_action_id)))
+             JOIN public.wh_locations whl ON ((whl.id = wtr.to_whlocation_id)))
+             JOIN public.wh_stores whs ON ((whs.id = whl.whstore_id)))
          LIMIT 1))::text AS location,
     ''::text AS description,
     s.batch_size,
@@ -373,11 +374,11 @@ UNION
             ELSE 'time_per'::text
         END AS type,
     (( SELECT whs.store_code
-           FROM (((public.wh_transfer_rules wtr
-             LEFT JOIN public.wh_actions wha ON ((wha.id = wtr.whaction_id)))
-             LEFT JOIN public.wh_locations whl ON ((whl.id = wtr.to_whlocation_id)))
-             LEFT JOIN public.wh_stores whs ON ((whs.id = whl.whstore_id)))
-          WHERE ((wha.type)::text = 'C'::text)
+           FROM ((((public.wh_transfer_rules wtr
+             JOIN public.st_typecodes stc ON ((stc.id = s.type_code_id)))
+             JOIN public.wh_actions wha ON ((wha.id = stc.complete_action_id)))
+             JOIN public.wh_locations whl ON ((whl.id = wtr.to_whlocation_id)))
+             JOIN public.wh_stores whs ON ((whs.id = whl.whstore_id)))
          LIMIT 1))::text AS location,
     o.remarks AS description,
     s.batch_size,
@@ -554,7 +555,7 @@ GRANT SELECT ON TABLE frepple.end_item_selection TO frepple;
 
 --
 -- TOC entry 5735 (class 0 OID 0)
--- Dependencies: 1072
+-- Dependencies: 1071
 -- Name: TABLE buffers; Type: ACL; Schema: frepple; Owner: sysadmin
 --
 
@@ -626,7 +627,7 @@ GRANT SELECT ON TABLE frepple.operation_resources TO frepple;
 
 --
 -- TOC entry 5743 (class 0 OID 0)
--- Dependencies: 1071
+-- Dependencies: 1072
 -- Name: TABLE operations; Type: ACL; Schema: frepple; Owner: sysadmin
 --
 
@@ -678,7 +679,7 @@ GRANT SELECT ON TABLE frepple.suppliers TO frepple;
 GRANT SELECT ON TABLE frepple.uzerp_auth TO frepple;
 
 
--- Completed on 2019-12-24 12:29:59 GMT
+-- Completed on 2020-01-06 16:06:00 GMT
 
 --
 -- PostgreSQL database dump complete
