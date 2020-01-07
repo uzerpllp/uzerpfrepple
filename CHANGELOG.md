@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- Use the stock item's type code to retrieve the location for manufactured item operations and buffers
+
 ## 1.2
 
 ### Fixed
