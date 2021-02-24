@@ -70,7 +70,7 @@ def Upload(request):
             create_wo = "INSERT INTO public.mf_workorders(\
               wo_number, order_qty, required_by, status, stitem_id, usercompanyid, documentation, start_date) \
               VALUES (%s, %s, %s, 'N',	(select id from st_items where item_code = %s),	1, %s, %s) RETURNING id;"
-            wo_data = (wo_number, float(order['quantity']), order['enddate'], order['operation__item__name'], dumps(uz_settings['wo_documentation']).decode("utf-8"), order['startdate'])
+            wo_data = (wo_number, float(order['quantity']), order['enddate'], order['item__name'], dumps(uz_settings['wo_documentation']).decode("utf-8"), order['startdate'])
             cursor_erp.execute(create_wo, wo_data)
             wo_id = cursor_erp.fetchone()
 
@@ -78,7 +78,7 @@ def Upload(request):
             copy_structure = "INSERT INTO public.mf_wo_structures(\
               line_no, qty, uom_id, remarks, waste_pc, work_order_id, ststructure_id, usercompanyid)\
               (select line_no, qty, uom_id, remarks, waste_pc, %s, ststructure_id, 1 from mf_structures where stitem_id = (select id from st_items where item_code = %s) and (start_date <= now() and (end_date >= now() or end_date is null)));"
-            structure_data = (wo_id, order['operation__item__name'])
+            structure_data = (wo_id, order['item__name'])
             cursor_erp.execute(copy_structure, structure_data)
 
             # Update the operationplan entry to approved status
