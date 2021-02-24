@@ -171,7 +171,7 @@ class Command(BaseCommand):
       select reference, item_id, supplier_id, startdate, enddate, quantity, item.subcategory, description
       from operationplan
       inner join item on item_id = item.name
-      where type = 'PO' and status = 'proposed' and startdate <= %s
+      where operationplan.type = 'PO' and status = 'proposed' and startdate <= %s
       ''', (release_fence,))
 
     po_export = [ i for i in self.cursor_frepple.fetchall()]
@@ -212,7 +212,7 @@ class Command(BaseCommand):
     self.cursor_frepple.execute('''
       select reference, quantity, enddate, item_id, startdate
       from operationplan
-      where type = 'MO' and item_id is not NULL and status = 'proposed' and startdate <= %s
+      where operationplan.type = 'MO' and item_id is not NULL and status = 'proposed' and startdate <= %s
       order by startdate
       ''', (release_fence,))
 
