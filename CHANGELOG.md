@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+- Update to run with the latest frepple 9.1.0 Community Edition
+- Add container build file
 - Use the stock item's type code to retrieve the location for manufactured item operations and buffers
 
 ## 1.2
