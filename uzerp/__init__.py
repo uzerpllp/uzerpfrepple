@@ -18,3 +18,13 @@
 # Mark this app as an ERP integration module.
 # Only one such app can be active on a frePPle instance.
 ERP_module = True
+
+frepple_app = {
+    "summary": "uzERP integration",
+    "description": """
+        <p>This app enables two-way integration with the uzERP, an
+        open source ERP and business management suite.</p>
+        """,
+    "documentation_url": "https://uzerp.com",
+    "ERP_integration": True,
+}

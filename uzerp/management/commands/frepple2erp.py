@@ -22,7 +22,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.template import Template, RequestContext
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from freppledb import VERSION
 from freppledb.common.models import User
@@ -42,7 +42,7 @@ class Command(BaseCommand):
   # For the display in the execution screen
   index = 1500
 
-  requires_system_checks = False
+  requires_system_checks = []
 
   def get_version(self):
     return VERSION
@@ -64,26 +64,23 @@ class Command(BaseCommand):
 
   @ staticmethod
   def getHTML(request):
-    if 'uzerp' in settings.INSTALLED_APPS:
-      context = RequestContext(request)
+    context = RequestContext(request)
 
-      template = Template('''
-        {% load i18n %}
-        <form role="form" method="post" action="{{request.prefix}}/execute/launch/frepple2erp/">{% csrf_token %}
-        <table>
-          <tr>
-            <td style="vertical-align:top; padding: 15px">
-               <button  class="btn btn-primary"  type="submit" value="{% trans "launch"|capfirst %}">{% trans "launch"|capfirst %}</button>
-            </td>
-            <td  style="padding: 0px 15px;">{% trans "Export Orders to uzERP." %}
-            </td>
-          </tr>
-        </table>
-        </form>
-      ''')
-      return template.render(context)
-    else:
-      return None
+    template = Template('''
+      {% load i18n %}
+      <form role="form" method="post" action="{{request.prefix}}/execute/launch/frepple2erp/">{% csrf_token %}
+      <table>
+        <tr>
+          <td style="vertical-align:top; padding: 15px">
+              <button  class="btn btn-primary"  type="submit" value="{% trans "launch"|capfirst %}">{% trans "launch"|capfirst %}</button>
+          </td>
+          <td  style="padding: 0px 15px;">{% trans "Export Orders to uzERP." %}
+          </td>
+        </tr>
+      </table>
+      </form>
+    ''')
+    return template.render(context)
 
 
   def handle(self, **options):

@@ -24,7 +24,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from django.db import DEFAULT_DB_ALIAS
 from django.template import Template, RequestContext
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from freppledb import VERSION
 from freppledb.common.models import User
@@ -44,7 +44,7 @@ class Command(BaseCommand):
   title = _('Import data from %(erp)s') % {'erp': 'uzERP'}
   index = 1400
 
-  requires_system_checks = False
+  requires_system_checks = []
 
 
   def get_version(self):
@@ -65,28 +65,25 @@ class Command(BaseCommand):
       )
 
 
-  @ staticmethod
+  @staticmethod
   def getHTML(request):
-    if 'uzerp' in settings.INSTALLED_APPS:
-      context = RequestContext(request)
+    context = RequestContext(request)
 
-      template = Template('''
-        {% load i18n %}
-        <form role="form" method="post" action="{{request.prefix}}/execute/launch/erp2frepple/">{% csrf_token %}
-        <table>
-          <tr>
-            <td style="vertical-align:top; padding: 15px">
-               <button  class="btn btn-primary"  type="submit" value="{% trans "launch"|capfirst %}">{% trans "launch"|capfirst %}</button>
-            </td>
-            <td  style="padding: 0px 15px;">{% trans "Import uzERP data into FrePPLe" %}
-            </td>
-          </tr>
-        </table>
-        </form>
-      ''')
-      return template.render(context)
-    else:
-      return None
+    template = Template('''
+      {% load i18n %}
+      <form role="form" method="post" action="{{request.prefix}}/execute/launch/erp2frepple/">{% csrf_token %}
+      <table>
+        <tr>
+          <td style="vertical-align:top; padding: 15px">
+              <button  class="btn btn-primary"  type="submit" value="{% trans "launch"|capfirst %}">{% trans "launch"|capfirst %}</button>
+          </td>
+          <td  style="padding: 0px 15px;">{% trans "Import uzERP data into FrePPLe" %}
+          </td>
+        </tr>
+      </table>
+      </form>
+    ''')
+    return template.render(context)
 
 
   def handle(self, **options):
@@ -364,7 +361,7 @@ class Command(BaseCommand):
     with open(outfilename, 'w', newline='') as outfile:
       outcsv = csv.writer(outfile, quoting=csv.QUOTE_MINIMAL)
       outcsv.writerow([
-        'description', 'location', 'item', 'onhand', 'minimum', 'min_interval', 
+        'description', 'location', 'item', 'onhand', 'minimum',
         ])
       outcsv.writerows(self.cursor.fetchall())
 
@@ -374,7 +371,7 @@ class Command(BaseCommand):
     Import uzERP supplier/item links and st_item parameters for purchased items to frePPLe.
     '''
     outfilename = os.path.join(self.destination, 'itemsupplier.%s' % self.ext)
-    print("Start extracting buffer to %s" % outfilename)
+    print("Start extracting itemsupplier to %s" % outfilename)
     self.cursor.execute('''
       select * from frepple.item_suppliers
       ''')
@@ -390,7 +387,7 @@ class Command(BaseCommand):
     Import uzERP purchase order lines to frePPLe.
     '''
     outfilename = os.path.join(self.destination, 'purchaseorder.%s' % self.ext)
-    print("Start extracting buffer to %s" % outfilename)
+    print("Start extracting purchaseorder to %s" % outfilename)
     self.cursor.execute('''
       select * from frepple.purchase_orders
       ''')
@@ -407,7 +404,7 @@ class Command(BaseCommand):
     Import uzERP work orders to frePPLe.
     '''
     outfilename = os.path.join(self.destination, 'manufacturingorder.%s' % self.ext)
-    print("Start extracting buffer to %s" % outfilename)
+    print("Start extracting manufacturingorder to %s" % outfilename)
     self.cursor.execute('''
       select * from frepple.manufacturing_orders
       ''')
